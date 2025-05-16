@@ -1,16 +1,36 @@
 <% layout('layouts/boilerplate') -%>
 
-<div class="card mt-5 mx-auto" style="max-width: 600px;">
+<div class="card mt-5 mx-auto" style="max-width: 600px">
   <div class="card-body">
     <h3 class="card-title text-center mb-4">Editing: <%= listing.title %></h3>
-    <form method="POST" action="/listings/<%= listing._id %>?_method=PUT">
+    <form
+      method="POST"
+      action="/listings/<%= listing._id %>?_method=PUT"
+      class="needs-validation"
+      novalidate
+    >
       <div class="mb-3">
         <label for="description" class="form-label">Description</label>
-        <textarea name="description" id="description" rows="5" class="form-control"><%= listing.description %></textarea>
+        <textarea
+          name="description"
+          id="description"
+          rows="5"
+          class="form-control"
+        >
+<%= listing.description %></textarea
+        >
       </div>
       <div class="mb-3">
         <label for="price" class="form-label">Price</label>
-        <input type="number" name="price" id="price" value="<%= listing.price %>" class="form-control">
+        <input
+          type="number"
+          name="price"
+          id="price"
+          value="<%= listing.price %>"
+          class="form-control"
+          required
+        />
+        <div class="invalid-feedback">Please enter valid price!</div>
       </div>
       <div class="d-grid gap-2">
         <button type="submit" class="btn btn-dark">Update Values</button>
