@@ -11,8 +11,8 @@ const listingSchema=new Schema({
     },
     image:{
         type:String,
-        default:"default.avif",
-        set: (v)=> v===''?"default.avif":v
+        default:"/images/default.avif",
+        set: (v)=> v===''?"/images/default.avif":v
     },
     price: {
         type:Number,

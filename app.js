@@ -11,7 +11,7 @@ app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
 
 main()
-    .then(()=> {
+    .then(()=> { 
         console.log("Connected to MongoDB");
     }).catch(err => console.log(err));
 
