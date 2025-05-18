@@ -1,17 +1,138 @@
 <% layout('layouts/boilerplate') -%>
+<style>
+  input:focus,
+  textarea:focus {
+    border-color: black !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25) !important;
+  }
+</style>
 
-<div class="card mt-5 mx-auto" style="max-width: 600px;">
-  <img src="<%= list.image %>" class="card-img-top" style="object-fit: cover; width: 100%; height: 300px; margin-left: 9rem;" alt="<%= list.title %>">
+<div class="card mt-5 mx-auto" style="max-width: 600px">
+  <img
+    src="<%= list.image %>"
+    class="card-img-top"
+    style="object-fit: cover; width: 100%; height: 300px; margin-left: 9rem"
+    alt="<%= list.title %>"
+  />
   <div class="card-body">
     <h3 class="card-title text-center mb-3"><%= list.title %></h3>
     <p class="card-text"><%= list.description %></p>
-    <p class="card-text">Price: &#8377;<%= list.price.toLocaleString("en-IN") %></p>
+    <p class="card-text">
+      Price: &#8377;<%= list.price.toLocaleString("en-IN") %>
+    </p>
     <p class="card-text">Location: <%= list.location %>, <%= list.country %></p>
     <div class="d-flex justify-content-between">
-      <a href="/listings/<%= list._id %>/edit" class="btn btn-secondary">Edit</a>
+      <a href="/listings/<%= list._id %>/edit" class="btn btn-dark">Edit</a>
       <form action="/listings/<%= list._id %>?_method=DELETE" method="POST">
         <button type="submit" class="btn btn-danger">Delete</button>
       </form>
     </div>
+
+    <!-- Review functionality -->
+    <hr />
+    <div class="d-flex">
+      <button
+        class="btn btn-link"
+        id="toggleReviewForm"
+        style="text-decoration: none; color: black"
+      >
+        Care to leave a review?
+      </button>
+      <button
+        class="btn btn-link ms-3"
+        id="toggleReviewsContainer"
+        style="text-decoration: none; color: black"
+      >
+        Show all reviews
+      </button>
+    </div>
+
+    <!-- New Review Form -->
+    <div
+      id="reviewFormContainer"
+      style="display: none"
+      class="mt-3 card p-3 shadow-sm"
+    >
+      <form
+        action="/listings/<%= list._id %>/reviews"
+        method="POST"
+        novalidate
+        class="needs-validation"
+      >
+        <div class="mb-3">
+          <label for="name" class="form-label">Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="name"
+            id="name"
+            placeholder="Your Name"
+            required
+          />
+          <div class="invalid-feedback">
+            Please enter your name!
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="comment" class="form-label">Comment</label>
+          <textarea
+            class="form-control"
+            name="comment"
+            id="comment"
+            rows="3"
+            placeholder="Your Review"
+            required
+          ></textarea>
+          <div class="invalid-feedback">
+            Please describe your experience!
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="rating" class="form-label">Review (Out of 5)</label>
+          <input
+            type="number"
+            class="form-control"
+            name="rating"
+            id="rating"
+            min="1"
+            max="5"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-dark">Post Review</button>
+      </form>
+    </div>
+
+    <!-- Reviews List -->
+    <div
+      id="reviewsContainer"
+      style="display: none"
+      class="mt-3"
+    >
+      <% if(list.reviews && list.reviews.length) { %>
+        <% list.reviews.forEach(function(review) { %>
+            <div class="card mb-3 p-3 shadow-sm">
+              <h5 class="card-title"><%= review.name %></h5>
+              <p class="card-text"><%= review.comment %></p>
+              <p class="card-text">Rating: <%= review.rating %> / 5</p>
+            </div>
+        <% }); %>
+      <% } else { %>
+          <p class="text-muted">No reviews yet!</p>
+      <% } %>
+    </div>
+
+    <script>
+      document.getElementById("toggleReviewForm").addEventListener("click", function () {
+          var formContainer = document.getElementById("reviewFormContainer");
+          formContainer.style.display =
+            formContainer.style.display === "none" ? "block" : "none";
+      });
+      document.getElementById("toggleReviewsContainer").addEventListener("click", function () {
+          var reviewsContainer = document.getElementById("reviewsContainer");
+          reviewsContainer.style.display =
+            reviewsContainer.style.display === "none" ? "block" : "none";
+      });
+    </script>
   </div>
 </div>
