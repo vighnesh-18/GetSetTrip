@@ -5,8 +5,9 @@ const Review = require("../models/review");
 const wrapAsync = require("../utils/wrapAsync");
 const ExpressError = require("../utils/ExpressError");
 const { reviewSchema } = require("../schema/reviewSchema");
+const { isLoggedIn,isAuthor } = require("../middleware.js");
 
-// Validate review middleware
+// Validate review middleware using joi
 const validateReview = (req, res, next) => {
   const { error } = reviewSchema.validate(req.body);
   if (error) {
@@ -21,10 +22,12 @@ const validateReview = (req, res, next) => {
 router.post(
   "/",
   validateReview,
+  isLoggedIn,
   wrapAsync(async (req, res) => {
     const { id } = req.params;
     const { name, comment, rating } = req.body;
     const newReview = new Review({ name, comment, rating });
+    newReview.author = req.user._id;
     await newReview.save();
     const listing = await Listing.findById(id);
     listing.reviews.push(newReview);
@@ -36,6 +39,8 @@ router.post(
 // DELETE /listings/:id/reviews/:reviewId - Delete a specific review
 router.delete(
   "/:reviewId",
+  isLoggedIn,
+  isAuthor,
   wrapAsync(async (req, res) => {
     const { id, reviewId } = req.params;
     await Review.findByIdAndDelete(reviewId);
@@ -44,7 +49,7 @@ router.delete(
   })
 );
 
-// GET /listings/:id/reviews/ - Optional: Show all reviews for a listing
+// GET /listings/:id/reviews/ - Show all reviews for a listing
 router.get(
   "/",
   wrapAsync(async (req, res) => {

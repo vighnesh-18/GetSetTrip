@@ -1,0 +1,64 @@
+<% layout('layouts/boilerplate') -%>
+
+<style>
+  input:focus,
+  textarea:focus {
+    border-color: black !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25) !important;
+  }
+  .btn-center {
+    display: block;
+    margin: 1cm auto 0 auto;
+  }
+  .loginsignup {
+    display: inline-block; /* shrink-wraps to its text */
+    text-decoration: none;
+    color: black;
+    padding: 0.2em 0.5em; /* optional: add a bit of padding */
+    transition: box-shadow 0.3s ease;
+  }
+  .loginsignup:hover {
+    box-shadow: 0 0 10px rgba(37, 8, 8, 0.5);
+  }
+  .top-margin {
+    margin-top: 2cm;
+  }
+</style>
+
+<div class="top-margin">
+  <div class="row mt-3">
+    <div class="col-6 offset-3">
+      <form action="/login" method="POST" class="needs-validation" novalidate>
+        <h3 class="text-center mb-4">Login</h3>
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input
+            type="text"
+            class="form-control"
+            id="username"
+            name="username"
+            required
+          />
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Please enter your username!</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+            required
+          />
+          <div class="invalid-feedback">Please enter your password!</div>
+        </div>
+
+        <a href="./signup" class="loginsignup">Coming first time? Create one!</a>
+
+        <button type="submit" class="btn btn-dark btn-center">Login</button>
+      </form>
+    </div>
+  </div>
+</div>

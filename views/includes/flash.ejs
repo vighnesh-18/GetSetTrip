@@ -1,0 +1,28 @@
+<style>
+  .flash-container {
+    max-width: 700px;
+    margin: 20px auto; /* centers the container & provides top/bottom spacing */
+  }
+  .flash-container .alert {
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+  }
+</style>
+<div class="flash-container">
+  <% if (success && success.length > 0) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <% success.forEach(function(msg){ %>
+        <p class="mb-0"><%= msg %></p>
+      <% }); %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } %>
+  <% if (error && error.length > 0) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <% error.forEach(function(msg){ %>
+        <p class="mb-0"><%= msg %></p>
+      <% }); %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } %>
+</div>

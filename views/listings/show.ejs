@@ -1,27 +1,28 @@
 <% layout('layouts/boilerplate') -%>
 
-<!-- Example flash messages block in your index.ejs or show.ejs -->
-<% if (success && success.length > 0) { %>
-  <div class="alert alert-success alert-dismissible fade show" role="alert">
-    <% success.forEach(msg => { %>
-      <p><%= msg %></p>
-    <% }); %>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-<% } else if (error && error.length > 0) { %>
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <% error.forEach(msg => { %>
-      <p><%= msg %></p>
-    <% }); %>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-<% } %>
-
 <style>
   input:focus,
   textarea:focus {
     border-color: black !important;
     box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25) !important;
+  }
+
+  /* Apply same styling as anchor tags */
+  .btn-link {
+    display: inline-block;
+    text-decoration: none;
+    color: black;
+    padding: 0.2em 0.5em;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .btn-link:hover {
+    box-shadow: 0 0 10px rgba(37, 8, 8, 0.5);
+  }
+
+  .owner-username {
+    font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+      "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
   }
 </style>
 
@@ -34,18 +35,23 @@
   />
   <div class="card-body">
     <h3 class="card-title text-center mb-3"><%= list.title %></h3>
+    <p class="card-text">
+      Owned by: <b class="owner-username"> <%= list.owner.username%> </b>
+    </p>
+    <hr />
     <p class="card-text"><%= list.description %></p>
     <p class="card-text">
       Price: &#8377;<%= list.price.toLocaleString("en-IN") %>
     </p>
     <p class="card-text">Location: <%= list.location %>, <%= list.country %></p>
+    <% if(curUser && curUser.username===list.owner.username) { %>
     <div class="d-flex justify-content-between">
       <a href="/listings/<%= list._id %>/edit" class="btn btn-dark">Edit</a>
       <form action="/listings/<%= list._id %>?_method=DELETE" method="POST">
         <button type="submit" class="btn btn-danger">Delete</button>
       </form>
     </div>
-
+    <% } %>
     <!-- Review functionality -->
     <hr />
     <div class="d-flex">
@@ -66,31 +72,20 @@
     </div>
 
     <!-- New Review Form -->
+
     <div
       id="reviewFormContainer"
       style="display: none"
       class="mt-3 card p-3 shadow-sm"
     >
+      <% if(curUser) { %>
       <form
         action="/listings/<%= list._id %>/reviews"
         method="POST"
         novalidate
         class="needs-validation"
       >
-        <div class="mb-3">
-          <label for="name" class="form-label">Name</label>
-          <input
-            type="text"
-            class="form-control"
-            name="name"
-            id="name"
-            placeholder="Your Name"
-            required
-          />
-          <div class="invalid-feedback">
-            Please enter your name!
-          </div>
-        </div>
+        <input type="hidden" name="name" value="<%= curUser.username %>" />
         <div class="mb-3">
           <label for="comment" class="form-label">Comment</label>
           <textarea
@@ -101,12 +96,10 @@
             placeholder="Your Review"
             required
           ></textarea>
-          <div class="invalid-feedback">
-            Please describe your experience!
-          </div>
+          <div class="invalid-feedback">Please describe your experience!</div>
         </div>
         <div class="mb-3">
-          <label for="rating" class="form-label">Review (Out of 5)</label>
+          <label for="rating" class="form-label">Rating (Out of 5)</label>
           <input
             type="number"
             class="form-control"
@@ -119,41 +112,74 @@
         </div>
         <button type="submit" class="btn btn-dark">Post Review</button>
       </form>
-    </div>
-
-    <!-- Reviews List -->
-    <div
-      id="reviewsContainer"
-      style="display: none"
-      class="mt-3"
-    >
-      <% if(list.reviews && list.reviews.length) { %>
-        <% list.reviews.forEach(function(review) { %>
-            <div class="card mb-3 p-3 shadow-sm">
-              <h5 class="card-title"><%= review.name %></h5>
-              <p class="card-text"><%= review.comment %></p>
-              <p class="card-text">Rating: <%= review.rating %> / 5</p>
-              <form method="POST" action="/listings/<%= list._id %>/reviews/<%= review._id %>?_method=DELETE">
-                <button type="submit" class="btn btn-danger">Delete</button>
-              </form>
-            </div>
-        <% }); %>
       <% } else { %>
-          <p class="text-muted">No reviews yet!</p>
+      <p class="text-muted">Please log in to leave a review!</p>
       <% } %>
     </div>
-
-    <script>
-      document.getElementById("toggleReviewForm").addEventListener("click", function () {
-          var formContainer = document.getElementById("reviewFormContainer");
-          formContainer.style.display =
-            formContainer.style.display === "none" ? "block" : "none";
-      });
-      document.getElementById("toggleReviewsContainer").addEventListener("click", function () {
-          var reviewsContainer = document.getElementById("reviewsContainer");
-          reviewsContainer.style.display =
-            reviewsContainer.style.display === "none" ? "block" : "none";
-      });
-    </script>
+    <!-- Reviews List -->
+    <div id="reviewsContainer" style="display: none" class="mt-3">
+      <% if(list.reviews && list.reviews.length) { %> <%
+      list.reviews.forEach(function(review) { %>
+      <div class="card mb-3 p-3 shadow-sm">
+        <h5 class="card-title">
+          <%= review.author && review.author.username ? review.author.username :
+          "Anonymous" %>
+        </h5>
+        <p class="card-text"><%= review.comment %></p>
+        <p class="card-text">Rating: <%= review.rating %> / 5</p>
+        <% if(curUser && curUser._id.equals(review.author._id)) { %>
+        <form
+          method="POST"
+          action="/listings/<%= list._id %>/reviews/<%= review._id %>?_method=DELETE"
+        >
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+        <% } %>
+      </div>
+      <% }); %> <% } else { %>
+      <p class="text-muted">No reviews yet!</p>
+      <% } %>
+    </div>
   </div>
 </div>
+
+<!-- After your content in show.ejs or in your layout, for example right before </body> -->
+<script>
+  // public/js/show.js
+  (function () {
+    // Use the global curUser variable to check login status
+
+    var toggleReviewBtn = document.getElementById("toggleReviewForm");
+    var toggleReviewsBtn = document.getElementById("toggleReviewsContainer");
+    var reviewFormContainer = document.getElementById("reviewFormContainer");
+    var reviewsContainer = document.getElementById("reviewsContainer");
+
+    if (toggleReviewBtn) {
+      toggleReviewBtn.addEventListener("click", function () {
+        // Toggle review form
+        if (
+          reviewFormContainer.style.display === "" ||
+          reviewFormContainer.style.display === "none"
+        ) {
+          reviewFormContainer.style.display = "block";
+        } else {
+          reviewFormContainer.style.display = "none";
+        }
+      });
+    }
+
+    if (toggleReviewsBtn) {
+      toggleReviewsBtn.addEventListener("click", function () {
+        // Toggle reviews container
+        if (
+          reviewsContainer.style.display === "" ||
+          reviewsContainer.style.display === "none"
+        ) {
+          reviewsContainer.style.display = "block";
+        } else {
+          reviewsContainer.style.display = "none";
+        }
+      });
+    }
+  })();
+</script>

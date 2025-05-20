@@ -11,8 +11,9 @@ const LocalStrategy = require("passport-local");
 const User = require("./models/user");
 
 // Routers
-const listingRoutes = require("./routes/listing");
-const reviewRoutes = require("./routes/review");
+const listingRoutes = require("./routes/listing.js");
+const reviewRoutes = require("./routes/review.js");
+const userRoutes = require("./routes/user.js");
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
@@ -56,19 +57,21 @@ passport.deserializeUser(User.deserializeUser());
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
-  next();
+  res.locals.curUser = req.user;
+  next(); 
 });
 
-app.get("/demo", async (req, res) => {
-  const user = new User({ username: "demo", email: "abc@gmail.com"});
-  const newUser = await User.register(user, "password");
-  res.send(newUser);
-});
+// app.get("/demo", async (req, res) => {
+//   const user = new User({ username: "demo", email: "abc@gmail.com"});
+//   const newUser = await User.register(user, "password");
+//   res.send(newUser);
+// });
 
 // Use listings router for listing-related routes
 app.use("/listings", listingRoutes);
 app.use("/listings/:id/reviews", reviewRoutes);
-
+app.use("/", userRoutes);
+ 
 // Error handling middleware
 app.use((err, req, res, next) => {
   let { status = 404, message = "Something went wrong!" } = err;

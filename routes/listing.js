@@ -5,6 +5,7 @@ const wrapAsync = require("../utils/wrapAsync");
 const ExpressError = require("../utils/ExpressError");
 const { listingSchema } = require("../schema/schema.js");
 const { listingSchemaForUpdate } = require("../schema/schemaPut.js");
+const { isLoggedIn, isOwner } = require("../middleware.js");
 
 // Validate middleware for creating a listing
 const validateListing = (req, res, next) => {
@@ -38,7 +39,7 @@ router.get(
 );
 
 // GET /listings/new - Form for new listing
-router.get("/new", (req, res) => {
+router.get("/new", isLoggedIn, (req, res) => {
   res.render("listings/new");
 });
 
@@ -47,7 +48,10 @@ router.get(
   "/:id",
   wrapAsync(async (req, res) => {
     const { id } = req.params;
-    const list = await Listing.findById(id).populate("reviews");
+    const list = await Listing.findById(id)
+      .populate("reviews")
+      .populate("owner")
+      .populate({ path: "reviews", populate: { path: "author" } });
     if (!list) {
       req.flash("error", "Listing not found");
       return res.redirect("/listings");
@@ -60,6 +64,7 @@ router.get(
 router.post(
   "/",
   validateListing,
+  isLoggedIn,
   wrapAsync(async (req, res) => {
     const { title, description, image, price, location, country } = req.body;
     const list = new Listing({
@@ -70,8 +75,8 @@ router.post(
       location,
       country,
     });
+    list.owner = req.user._id;
     req.flash("success", "Successfully created a new listing!");
-    req.flash("error", "Error creating listing");
     await list.save();
     res.redirect("/listings");
   })
@@ -80,13 +85,11 @@ router.post(
 // GET /listings/:id/edit - Edit form for a listing
 router.get(
   "/:id/edit",
+  isLoggedIn,
+  isOwner,
   wrapAsync(async (req, res) => {
     const { id } = req.params;
-    const listing = await Listing.findById(id);
-    if (!listing) {
-      req.flash("error", "Listing not found");
-      return res.redirect("/listings");
-    }
+    const listing = await Listing.findByIdAndUpdate(id);
     res.render("listings/edit", { listing });
   })
 );
@@ -94,13 +97,20 @@ router.get(
 // PUT /listings/:id - Update a listing
 router.put(
   "/:id",
+  isLoggedIn,
+  isOwner,
   validateListingForUpdate,
   wrapAsync(async (req, res) => {
     const { id } = req.params;
     const { description, price } = req.body;
     req.flash("success", "Successfully updated the listing!");
     req.flash("error", "Error updating listing");
-    const listing = await Listing.findByIdAndUpdate(id, { description, price });
+    const listing = await Listing.findById(id);
+    if (!listing.owner._id.equals(req.user._id)) {
+      req.flash("error", "You do not have permission to edit this listing");
+      return res.redirect(`/listings/${id}`);
+    }
+    await Listing.updateOne(id, { description, price });
     res.redirect(`/listings/${listing._id}`);
   })
 );
@@ -108,6 +118,8 @@ router.put(
 // DELETE /listings/:id - Delete a listing (and via pre-hook, its reviews)
 router.delete(
   "/:id",
+  isLoggedIn,
+  isOwner,
   wrapAsync(async (req, res) => {
     const { id } = req.params;
     req.flash("success", "Successfully deleted a listing!");
