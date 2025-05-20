@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const Schema=mongoose.Schema;
+const Review=require('./review.js');
+const wrapAsync = require("../utils/wrapAsync.js");
 
 const listingSchema=new Schema({
     title : {
@@ -32,6 +34,16 @@ const listingSchema=new Schema({
             ref:'Review'
         }
     ]
+});
+
+listingSchema.pre("findOneAndDelete", async function () {
+  const listing = await this.model.findOne(this.getFilter());
+  //console.log(listing);
+  if (listing) {
+    await Review.deleteMany({
+      _id: { $in: listing.reviews }
+    });
+  }
 });
 
 const Listing=mongoose.model('Listing',listingSchema);

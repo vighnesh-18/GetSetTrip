@@ -1,5 +1,23 @@
 <% layout('layouts/boilerplate') -%>
 
+<!-- Example flash messages block in your index.ejs or show.ejs -->
+<% if (success && success.length > 0) { %>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <% success.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }); %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
+<% } else if (error && error.length > 0) { %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <% error.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }); %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
 <body>
     <h3 class="abc-xyz">Listings</h3>
     <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
