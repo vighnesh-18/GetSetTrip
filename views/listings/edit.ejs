@@ -8,6 +8,7 @@
       action="/listings/<%= listing._id %>?_method=PUT"
       class="needs-validation"
       novalidate
+      enctype="multipart/form-data"
     >
       <div class="mb-3">
         <label for="description" class="form-label">Description</label>
@@ -17,8 +18,26 @@
           rows="5"
           class="form-control"
         >
-<%= listing.description %></textarea
-        >
+        <%= listing.description %></textarea>
+        
+      </div>
+      <div class="mb-3">
+        <h5>Original image</h5>
+        <img
+          src="<%= originalImageUrl %>"
+          alt="Listing image"
+          class="img-fluid mb-3"
+          style="object-fit: cover; width: 100%; height: 300px"
+        />
+      </div>
+      <div class="mb-3">
+        <label for="image" class="form-label">Upload new image</label>
+        <input
+          type="file"
+          name="image"
+          id="iamge"
+          class="form-control"
+        />
       </div>
       <div class="mb-3">
         <label for="price" class="form-label">Price</label>

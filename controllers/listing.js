@@ -46,20 +46,29 @@ module.exports.create=async (req, res) => {
 module.exports.edit=async (req, res) => {
     const { id } = req.params;
     const listing = await Listing.findByIdAndUpdate(id);
-    res.render("listings/edit", { listing });
+    let originalImageUrl= listing.image.url;
+    originalImageUrl=originalImageUrl.replace("/upload","/upload/w_450");
+    //console.log(originalImageUrl);
+    res.render("listings/edit", { listing,originalImageUrl });
   }
 
-module.exports.updadte=async (req, res) => {
+module.exports.update=async (req, res) => {
     const { id } = req.params;
     const { description, price } = req.body;
     req.flash("success", "Successfully updated the listing!");
-    req.flash("error", "Error updating listing");
     const listing = await Listing.findById(id);
     if (!listing.owner._id.equals(req.user._id)) {
       req.flash("error", "You do not have permission to edit this listing");
       return res.redirect(`/listings/${id}`);
     }
-    await Listing.updateOne(id, { description, price });
+    await Listing.updateOne({ _id: id }, { description, price });
+    if(typeof req.file !== "undefined"){
+      const url=req.file.path;
+      const filename=req.file.filename;
+      listing.image = { url, filename };
+      await listing.save();
+      req.flash("success", "Successfully updated the listing!");
+    } 
     res.redirect(`/listings/${listing._id}`);
   }
 

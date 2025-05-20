@@ -52,7 +52,7 @@ router.get("/new", isLoggedIn, ListingController.new);
 // DELETE /listings/:id - Delete a listing (and via pre-hook, its reviews)
 router.route("/:id")
   .get(wrapAsync(ListingController.show))
-  .put(isLoggedIn, isOwner, validateListingForUpdate, wrapAsync(ListingController.update))
+  .put(isLoggedIn, isOwner, upload.single("image") ,validateListingForUpdate, wrapAsync(ListingController.update))
   .delete(isLoggedIn, isOwner, wrapAsync(ListingController.delete));
 
 // GET /listings/:id/edit - Edit form for a listing
