@@ -3,7 +3,13 @@
 <div class="card mt-5 mx-auto" style="max-width: 600px">
   <div class="card-body">
     <h3 class="card-title text-center mb-4">Create New Listing</h3>
-    <form action="/listings" method="POST" class="needs-validation" novalidate>
+    <form
+      action="/listings"
+      method="POST"
+      class="needs-validation"
+      novalidate
+      enctype="multipart/form-data"
+    >
       <div class="mb-3">
         <label for="title" class="form-label">Title</label>
         <input
@@ -28,9 +34,9 @@
         ></textarea>
       </div>
       <div class="mb-3">
-        <label for="image" class="form-label">Image URL</label>
+        <label for="image" class="form-label">Upload Image</label>
         <input
-          type="text"
+          type="file"
           placeholder="enter url"
           name="image"
           id="image"
