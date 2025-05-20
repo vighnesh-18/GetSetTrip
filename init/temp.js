@@ -87,16 +87,25 @@ listings.forEach((listing, i) => {
   listing.description = indianDescriptions[i % indianDescriptions.length];
 });
 
-// Convert back to JavaScript object format (no stringified keys)
+// Convert back to JavaScript object format (removing quotes on keys)
 function toJSObjectString(obj) {
-  if (obj.image && obj.image.url) {
-    obj.image = obj.image.url;
+  if (obj.image) {
+    // If image is an object and has a nested url object, flatten it
+    if (typeof obj.image === "object") {
+      if (obj.image.url && typeof obj.image.url === "object") {
+        // Replace nested object with just the URL string:
+        obj.image.url = obj.image.url.url;
+      }
+      // Always override the filename to our static value:
+      obj.image.filename = "GetSetTrip archives";
+    } else {
+      // If it's not an object, create one
+      obj.image = { url: obj.image, filename: "GetSetTrip archives" };
+    }
   }
-
   return JSON.stringify(obj, null, 2)
-    .replace(/"(\w+)"\s*:/g, '$1:');  // ✅ Only remove quotes around keys
+    .replace(/"(\w+)"\s*:/g, '$1:');  // Remove quotes around keys
 }
-
 
 // Convert listings to pretty JS code
 const output = `const sampleListings = [\n${listings.map(toJSObjectString).join(",\n")}\n];\n\nmodule.exports = { data: sampleListings };`;

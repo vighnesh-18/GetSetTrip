@@ -37,10 +37,12 @@ const validateListingForUpdate = (req, res, next) => {
 // POST /listings - Create a new listing
 router.route("/")
   .get(wrapAsync(ListingController.index))
-  .post(upload.single("image"), (req,res)=> {
-    res.send(req.file);
-  });
-  //.post(validateListing, isLoggedIn, wrapAsync(ListingController.create));
+  .post(
+    upload.single("image"),
+    validateListing,
+    isLoggedIn,
+    wrapAsync(ListingController.create)
+  );
 
 // GET /listings/new - Form for new listing
 router.get("/new", isLoggedIn, ListingController.new);

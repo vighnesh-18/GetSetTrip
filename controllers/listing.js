@@ -23,6 +23,10 @@ module.exports.show=async (req, res) => {
   };
 
 module.exports.create=async (req, res) => {
+    let url=req.file.path;
+    let filename=req.file.filename;
+    // console.log(url);
+    // console.log(filename);
     const { title, description, image, price, location, country } = req.body;
     const list = new Listing({
       title,
@@ -33,6 +37,7 @@ module.exports.create=async (req, res) => {
       country,
     });
     list.owner = req.user._id;
+    list.image = { url, filename };
     req.flash("success", "Successfully created a new listing!");
     await list.save();
     res.redirect("/listings");

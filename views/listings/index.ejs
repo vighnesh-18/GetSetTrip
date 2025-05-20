@@ -6,12 +6,12 @@
         <% for(let list of listings) { %>
             <div class="card" style="width: 18rem;">
                 <div class="card-image-overlay">
-                    <a href="/listings/<%= list._id %>"><img src="<%= list.image %>" class="card-img-top" alt="Listing image" style="height: 20rem"></a>
+                    <a href="/listings/<%= list._id %>"><img src="<%= list.image.url %>" class="card-img-top" alt="Listing image" style="height: 20rem"></a>
                 </div>
                 <div class="card-body">
                     <h5 class="card-title"><b><%= list.title %></b></h5>
                     <p class="card-text">&#8377;<%= list.price.toLocaleString("en-IN") %>/night</p>
-                    <a href="<%= list.image %>" class="btn btn-dark">Expand image</a>
+                    <a href="<%= list.image.url %>" class="btn btn-dark">Expand image</a>
                 </div>
             </div>
         <% } %>
